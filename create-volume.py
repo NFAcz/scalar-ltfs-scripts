@@ -2,6 +2,8 @@
 from __future__ import print_function
 import sys
 import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 username = sys.argv[1]
 password = sys.argv[2]
