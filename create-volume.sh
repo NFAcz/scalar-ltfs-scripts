@@ -19,3 +19,4 @@ if (curl -ks ${URL}/volume_groups/$VOLUME_NAME $CURL_PARAMS -d $VOLUME_PAYLOAD);
 else
 	echo "Volume creation \"$VOLUME_NAME\" FAIL!"
 fi
+#aa
