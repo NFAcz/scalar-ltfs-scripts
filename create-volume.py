@@ -10,7 +10,7 @@ password = sys.argv[2]
 volume_name=sys.argv[3]
 url='https://172.23.9.101/ScalarLTFS'
 auth_payload='<credentials><user>{0}</user><password>{1}</password><clientinfo>gui</clientinfo><ldap>false</ldap></credentials>'.format(username, password)
-volume_payload='<volume_group><online>false</online><comment>{0}_A</comment><low_free_threshold>100</low_free_threshold><scratch_enabled>false</scratch_enabled></volume_group>'.format(volume_name)
+volume_payload='<volume_group><online>true</online><comment>{0}_A</comment><low_free_threshold>100</low_free_threshold><scratch_enabled>false</scratch_enabled></volume_group>'.format(volume_name)
 headers={'Content-Type':'application/xml'}
 
 s = requests.Session()
