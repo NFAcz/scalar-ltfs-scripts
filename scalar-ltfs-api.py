@@ -53,6 +53,13 @@ def list_media_in_volgroup(session, volume):
 	 	media = [ media.text for media in api_response[0].findall('barcode') ]
 	return media
 
+def volume_to_barcode(volume):
+	volume_parsed = volume.split('_')
+	volume_suffix = volume_parsed[-1]
+	volume_id = int(volume_parsed[-2])
+	barcode = '{0}{1:04}{2}'.format(volume[:1], volume_id, volume_suffix[:1])
+	return barcode
+
 
 def status_media(session, media):
 	r = api_handler(session, 'GET', '/media/{0}'.format(media), None)
@@ -64,29 +71,36 @@ def status_volume(session, volume):
 	return ET.fromstring(r.text)
 
 
-def assign_media(session, volume):
-	volume_parsed = volume.split('_')
-	volume_suffix = volume_parsed[-1]
-	volume_id = int(volume_parsed[-2])
-	barcode = '{0}{1:04}{2}'.format(volume[:1], volume_id, volume_suffix[:1])
+def assign_media(session, destvolume, barcode=None, **kwargs):
+	if barcode is None:
+		barcode = volume_to_barcode(volume)
 	status = status_media(session, barcode)
-	src_volgroup = status.findall('volgroup_name')[0].text
+	srcvolume = status.findall('volgroup_name')[0].text
 
 	payload='<assign><volgroup_name>{0}</volgroup_name><dest_volgroup_name>{1}</dest_volgroup_name><volume_list><barcode>{2}</barcode></volume_list></assign>'
-	r = api_handler(session, 'POST', '/operations/assign', payload.format(src_volgroup, volume, barcode))
-	print ('Assigning media {0} to volume {1}'.format(media, volume))
+	r = api_handler(session, 'POST', '/operations/assign', payload.format(srcvolume, destvolume, barcode))
+	print ('Assigning media {0} to volume {1}'.format(barcode, destvolume))
 
 	while 1:
 		time.sleep(1)
-		media = list_media_in_volgroup(session, volume)
+		media = list_media_in_volgroup(session, destvolume)
 		if len(media) > 0 and barcode in media: break
 	#FIXME return something
 
 
 def replicate_volume(session, volume, destvolume):
-	payload='<replicate><volgroup_name>{0}_A</volgroup_name><dest_volgroup_name>{0}_B</dest_volgroup_name><verify>true</verify></replicate>'
-        r = api_handler(session, 'POST', '/operations/replicate', payload.format(volume))
+	payload='<replicate><volgroup_name>{0}</volgroup_name><dest_volgroup_name>{1}</dest_volgroup_name><verify>false</verify></replicate>'
+        r = api_handler(session, 'POST', '/operations/replicate', payload.format(volume, destvolume))
 	print('Replicating volumegroup {0} to {1}'.format(volume, destvolume))
+	print(r.text)
+
+	while 1:
+		time.sleep(1)
+		# TODO finish testing
+		status = status_volume(session, destvolume)
+		vg_state = status.findall('idx_vg_state')[0].text
+		if int(vg_state) == 1 : break
+
 	#FIXME volume status
 	#FIXME return something
 
@@ -133,12 +147,12 @@ def format_media(session, media):
 def prepare_export(session, volume):
 	payload='<prepare_export><volgroup_list><volgroup_name>{0}</volgroup_name></volgroup_list></prepare_export>'
         r = api_handler(session, 'POST', '/operations/prepare_export', payload.format(volume))
-	print('Preparing media {0} for export'.format(media))
+	print('Preparing volume {0} for export'.format(media))
 
         while 1:
                 time.sleep(1)
                 status = status_volume(session, media)
-		vg_state = status[0].findall('idx_vg_state')[0].text
+		vg_state = status.findall('idx_vg_state')[0].text
                 if int(vg_state) == 3 : break
         return r.text
 
@@ -210,13 +224,42 @@ if __name__ == '__main__':
 			for _media in media:
 				status = status_media(session, _media)
 				a_state = status.findall('a_state')[0].text
-				if a_state is not 'sequestered' :
+				if a_state not in ['sequestered', 'auto-attachable'] :
 					detach_media(session, _media)
 				format_media(session, _media)
+				assign_media(session, '[holding_volume]', barcode=_media)
 
 		if args.export:
 			media = list_media_in_volgroup(session, args.volume)
 			prepare_export(session, args.volume)
 			for _media in media:
 				export_media(session, _media)
+
+		if args.assign:
+			if args.media is not None and args.volume is not None:
+				status = status_media(session, args.media)
+				a_state = status.findall('a_state')[0].text
+				if a_state not in ['sequestered', 'auto-attachable'] :
+					detach_media(session, args.media)
+				assign_media(session, args.volume, barcode=args.media)
+			else:
+				print('Missing media or volume arguments!')
+				sys.exit(1)
+		if args.replicate:
+			if args.volume is not None:
+				media = volume_to_barcode(args.destvolume)
+				scratch_media = list_media_in_volgroup(session, '[scratch media]')
+				if media in scratch_media:
+					scratch_media.pop(scratch_media.index(media))
+				for _media in scratch_media:
+					assign_media(session, '[holding_volume]', barcode=_media)
+                                status = status_media(session, media)
+                                a_state = status.findall('a_state')[0].text
+                                if a_state not in ['sequestered', 'auto-attachable'] :
+                                        detach_media(session, media)
+				if media not in list_media_in_volgroup(session, '[scratch media]'):
+					format_media(session, media)
+				replicate_volume(session, args.volume, args.destvolume)
+
+
 
