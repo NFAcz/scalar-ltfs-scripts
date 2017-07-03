@@ -170,7 +170,7 @@ if __name__ == '__main__':
 				print(status)
 
 		if args.create:
-			print('Creating volume {0}'.format(args.volume)
+			print('Creating volume {0}'.format(args.volume))
 			create_volume(session, args.volume)
 
 		if args.attach:
@@ -182,7 +182,7 @@ if __name__ == '__main__':
 				print('No media, attempting to assign it.')
 				assign_media(session, args.volume)
 			for _media in media:
-				print('Attaching media {0}'.format(_media)
+				print('Attaching media {0}'.format(_media))
 				attach_media(session, _media)
 
 		if args.detach:
@@ -193,7 +193,7 @@ if __name__ == '__main__':
 			if len(media) < 1:
 				media = []
 			for _media in media:
-				print('Deatching media {0}'.format(_media)
+				print('Deatching media {0}'.format(_media))
 				detach_media(session, _media)
 
 		if args.format:
@@ -204,13 +204,12 @@ if __name__ == '__main__':
 			if len(media) < 1:
 				media = []
 			for _media in media:
-				print('Formatting media {0}'.format(_media)
+				print('Formatting media {0}'.format(_media))
 				format_media(session, _media)
 
 		if args.export:
 			media = list_media_in_volgroup(session, args.volume)
 			prepare_export(session, args.volume)
 			for _media in media:
-				print('Exporting media {0}'.format(_media)
+				print('Exporting media {0}'.format(_media))
 				export_media(session, _media)
-
