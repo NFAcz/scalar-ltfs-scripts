@@ -74,18 +74,19 @@ def assign_media(session, volume):
 
 	payload='<assign><volgroup_name>{0}</volgroup_name><dest_volgroup_name>{1}</dest_volgroup_name><volume_list><barcode>{2}</barcode></volume_list></assign>'
 	r = api_handler(session, 'POST', '/operations/assign', payload.format(src_volgroup, volume, barcode))
+	print ('Assigning media {0} to volume {1}'.format(media, volume))
 
 	while 1:
 		time.sleep(1)
 		media = list_media_in_volgroup(session, volume)
 		if len(media) > 0 and barcode in media: break
 	#FIXME return something
-	print ('Media {0} assigned to volume {1}'.format(media, volume))
 
 
-def replicate_volume(session, volume):
+def replicate_volume(session, volume, destvolume):
 	payload='<replicate><volgroup_name>{0}_A</volgroup_name><dest_volgroup_name>{0}_B</dest_volgroup_name><verify>true</verify></replicate>'
         r = api_handler(session, 'POST', '/operations/replicate', payload.format(volume))
+	print('Replicating volumegroup {0} to {1}'.format(volume, destvolume))
 	#FIXME volume status
 	#FIXME return something
 
@@ -93,6 +94,7 @@ def replicate_volume(session, volume):
 def attach_media(session, media):
 	payload='<volume><a_state>1</a_state></volume>'
 	r = api_handler(session, 'PUT', '/media/{0}'.format(media), payload)
+	print('Attaching media {0}'.format(media))
 
         while 1:
                 time.sleep(1)
@@ -105,6 +107,7 @@ def attach_media(session, media):
 def detach_media(session, media):
 	payload='<volume><a_state>3</a_state></volume>'
 	r = api_handler(session, 'PUT', '/media/{0}'.format(media), payload)
+	print('Deatching media {0}'.format(media))
 
         while 1:
                 time.sleep(1)
@@ -117,6 +120,7 @@ def detach_media(session, media):
 def format_media(session, media):
 	payload='<volume><a_state>5</a_state></volume>'
 	r = api_handler(session, 'PUT', '/media/{0}'.format(media), payload)
+	print('Formatting media {0}'.format(media))
 
         while 1:
                 time.sleep(1)
@@ -129,6 +133,7 @@ def format_media(session, media):
 def prepare_export(session, volume):
 	payload='<prepare_export><volgroup_list><volgroup_name>{0}</volgroup_name></volgroup_list></prepare_export>'
         r = api_handler(session, 'POST', '/operations/prepare_export', payload.format(volume))
+	print('Preparing media {0} for export'.format(media))
 
         while 1:
                 time.sleep(1)
@@ -141,6 +146,7 @@ def prepare_export(session, volume):
 def export_media(session, media):
 	payload='<volume><a_state>9</a_state></volume>'
         r = api_handler(session, 'PUT', '/media/{0}'.format(media), payload)
+	print('Exporting media {0}'.format(media))
 
         while 1:
                 time.sleep(1)
@@ -153,6 +159,7 @@ def export_media(session, media):
 def create_volume(session, volume):
 	payload='<volume_group><online>true</online><comment>{0}</comment><low_free_threshold>100</low_free_threshold><scratch_enabled>false</scratch_enabled></volume_group>'
         r = api_handler(session, 'POST', '/volume_groups/{0}'.format(volume), payload.format(volume))
+	print('Creating volume {0}'.format(volume))
 	return r.text
 
 
@@ -170,7 +177,6 @@ if __name__ == '__main__':
 				print(status)
 
 		if args.create:
-			print('Creating volume {0}'.format(args.volume))
 			create_volume(session, args.volume)
 
 		if args.attach:
@@ -182,7 +188,6 @@ if __name__ == '__main__':
 				print('No media, attempting to assign it.')
 				assign_media(session, args.volume)
 			for _media in media:
-				print('Attaching media {0}'.format(_media))
 				attach_media(session, _media)
 
 		if args.detach:
@@ -193,7 +198,6 @@ if __name__ == '__main__':
 			if len(media) < 1:
 				media = []
 			for _media in media:
-				print('Deatching media {0}'.format(_media))
 				detach_media(session, _media)
 
 		if args.format:
@@ -204,12 +208,15 @@ if __name__ == '__main__':
 			if len(media) < 1:
 				media = []
 			for _media in media:
-				print('Formatting media {0}'.format(_media))
+				status = status_media(session, _media)
+				a_state = status.findall('a_state')[0].text
+				if a_state is not 'sequestered' :
+					detach_media(session, _media)
 				format_media(session, _media)
 
 		if args.export:
 			media = list_media_in_volgroup(session, args.volume)
 			prepare_export(session, args.volume)
 			for _media in media:
-				print('Exporting media {0}'.format(_media))
 				export_media(session, _media)
+
