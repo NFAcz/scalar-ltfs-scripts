@@ -99,7 +99,7 @@ def replicate_volume(session, volume, destvolume):
 		# TODO finish testing
 		status = status_volume(session, destvolume)
 		vg_state = status.findall('idx_vg_state')[0].text
-		if int(vg_state) == 1 : break
+		if int(vg_state) == 2 : break
 
 	#FIXME volume status
 	#FIXME return something
