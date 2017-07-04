@@ -95,7 +95,7 @@ def replicate_volume(session, volume, destvolume):
 	print(r.text)
 
 	while 1:
-		time.sleep(1)
+		time.sleep(10)
 		# TODO finish testing
 		status = status_volume(session, destvolume)
 		vg_state = status.findall('idx_vg_state')[0].text
