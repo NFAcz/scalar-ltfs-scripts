@@ -73,7 +73,7 @@ def status_volume(session, volume):
 
 def assign_media(session, destvolume, barcode=None, **kwargs):
 	if barcode is None:
-		barcode = volume_to_barcode(volume)
+		barcode = volume_to_barcode(destvolume)
 	status = status_media(session, barcode)
 	srcvolume = status.findall('volgroup_name')[0].text
 
