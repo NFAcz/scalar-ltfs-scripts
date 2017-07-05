@@ -102,7 +102,7 @@ def replicate_volume(session, volume, destvolume):
 			vg_state = status.findall('idx_vg_state')[0].text
 		except IndexError:
 			vg_state = -1
-			print(ET.tostring(status)
+			print(ET.tostring(status))
 		if int(vg_state) == 2 : break
 
 	#FIXME volume status
