@@ -231,7 +231,6 @@ if __name__ == '__main__':
 				if a_state not in ['sequestered', 'auto-attachable'] :
 					detach_media(session, _media)
 				format_media(session, _media)
-				assign_media(session, '[holding_volume]', barcode=_media)
 
 		if args.export:
 			media = list_media_in_volgroup(session, args.volume)
@@ -248,7 +247,6 @@ if __name__ == '__main__':
 					detach_media(session, args.media)
 				if volgroup_name == '[holding_volume]':
 					format_media(session, args.media)
-
 				assign_media(session, args.volume, barcode=args.media)
 			else:
 				print('Missing media or volume arguments!')
