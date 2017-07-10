@@ -243,8 +243,12 @@ if __name__ == '__main__':
 			if args.media is not None and args.volume is not None:
 				status = status_media(session, args.media)
 				a_state = status.findall('a_state')[0].text
+				volgroup_name = status.findall('volgroup_name')[0].text
 				if a_state not in ['sequestered', 'auto-attachable'] :
 					detach_media(session, args.media)
+				if volgroup_name == '[holding_volume]':
+					format_media(session, args.media)
+
 				assign_media(session, args.volume, barcode=args.media)
 			else:
 				print('Missing media or volume arguments!')
