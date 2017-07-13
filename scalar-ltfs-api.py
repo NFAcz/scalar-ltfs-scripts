@@ -151,11 +151,11 @@ def format_media(session, media):
 def prepare_export(session, volume):
 	payload='<prepare_export><volgroup_list><volgroup_name>{0}</volgroup_name></volgroup_list></prepare_export>'
         r = api_handler(session, 'POST', '/operations/prepare_export', payload.format(volume))
-	print('Preparing volume {0} for export'.format(media))
+	print('Preparing volume {0} for export'.format(volume))
 
         while 1:
                 time.sleep(1)
-                status = status_volume(session, media)
+                status = status_volume(session, volume)
 		vg_state = status.findall('idx_vg_state')[0].text
                 if int(vg_state) == 3 : break
         return r.text
