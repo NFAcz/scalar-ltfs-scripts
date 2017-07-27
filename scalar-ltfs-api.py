@@ -235,12 +235,12 @@ if __name__ == '__main__':
 		if args.export:
 			media = list_media_in_volgroup(session, args.volume)
 			prepare_export(session, args.volume)
-		        while 1:
-		                time.sleep(1)
-		                status = status_media(session, media)
-				a_state = status.findall('a_state')[0].text
-		                if a_state == 'ready for export' : break
 			for _media in media:
+			        while 1:
+			                time.sleep(1)
+			                status = status_media(session, media)
+					a_state = status.findall('a_state')[0].text
+			                if a_state == 'ready for export' : break
 				export_media(session, _media)
 
 		if args.assign:
