@@ -92,7 +92,6 @@ def replicate_volume(session, volume, destvolume):
 	payload='<replicate><volgroup_name>{0}</volgroup_name><dest_volgroup_name>{1}</dest_volgroup_name><verify>false</verify></replicate>'
         r = api_handler(session, 'POST', '/operations/replicate', payload.format(volume, destvolume))
 	print('Replicating volumegroup {0} to {1}'.format(volume, destvolume))
-	print(r.text)
 
 	while 1:
 		time.sleep(10)
@@ -238,8 +237,7 @@ if __name__ == '__main__':
 			for _media in media:
 			        while 1:
 			                time.sleep(1)
-			                status = status_media(session, media)
-					print(status)
+			                status = status_media(session, _media)
 					a_state = status.findall('a_state')[0].text
 			                if a_state == 'ready for export' : break
 				export_media(session, _media)
