@@ -157,7 +157,7 @@ def prepare_export(session, volume):
                 time.sleep(1)
                 status = status_volume(session, volume)
 		vg_state = status.findall('idx_vg_state')[0].text
-                if int(vg_state) == 6 : break
+                if int(vg_state) == 3 : break
         return r.text
 
 
@@ -239,10 +239,8 @@ if __name__ == '__main__':
 		                time.sleep(1)
 		                status = status_media(session, media)
 				a_state = status.findall('a_state')[0].text
-				print(a_state)
 		                if a_state == 'ready for export' : break
 			for _media in media:
-				
 				export_media(session, _media)
 
 		if args.assign:
