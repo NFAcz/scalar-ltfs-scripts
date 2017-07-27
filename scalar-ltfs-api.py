@@ -239,6 +239,7 @@ if __name__ == '__main__':
 			        while 1:
 			                time.sleep(1)
 			                status = status_media(session, media)
+					print(status)
 					a_state = status.findall('a_state')[0].text
 			                if a_state == 'ready for export' : break
 				export_media(session, _media)
