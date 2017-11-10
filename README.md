@@ -1,6 +1,6 @@
 # Scalar LTFS scripts
 
-This repo contains a python scripts used to communicate with a Quantum Scalar LTFS Appliance XMLRPC API.
+This repo contains a python script used to communicate with a Quantum Scalar LTFS Appliance XMLRPC API.
 
 ## Usage
 
