@@ -227,7 +227,10 @@ if __name__ == '__main__':
 			for _media in media:
 				status = status_media(session, _media)
 				a_state = status.findall('a_state')[0].text
-				if a_state not in ['sequestered', 'auto-attachable'] :
+				if a_state is 'auto-attachable':
+				    print('Refusing to format already-formatted tape!')
+				    break
+				elif a_state is not 'sequestered':
 					detach_media(session, _media)
 				format_media(session, _media)
 
