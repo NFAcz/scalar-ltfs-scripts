@@ -84,8 +84,6 @@ def assign_media(session, destvolume, barcode=None, **kwargs):
 	while 1:
 		time.sleep(1)
 		media = list_media_in_volgroup(session, destvolume)
-		print (ET.tostring(status_volume(session, destvolume)))
-		print (ET.tostring(status_media(session, barcode)))
 		if barcode in media: break
 	#FIXME return something
 
