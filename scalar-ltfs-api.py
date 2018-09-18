@@ -117,10 +117,7 @@ def attach_media(session, media):
                 time.sleep(1)
                 status = status_media(session, media)
 		a_state = status.findall('a_state')[0].text
-                if a_state == 'attached' :
-                    print('Sleeping 30s for the volume to unmount..')
-                    time.sleep(30)
-                    break
+                if a_state == 'attached' : break
 	return r.text
 
 
